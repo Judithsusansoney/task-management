@@ -1,4 +1,4 @@
-Team Task Manager
+Team Task Management
 
 This is a webapplication  built to help teams organize projects and track task progress seamlessly.
 
