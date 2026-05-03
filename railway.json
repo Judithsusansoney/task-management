@@ -4,7 +4,7 @@
     "builder": "NIXPACKS"
   },
   "deploy": {
-    "startCommand": "python teamtaskmanager_proj/manage.py migrate && gunicorn --bind 0.0.0.0:$PORT --pythonpath teamtaskmanager_proj teamtaskmanager_proj.wsgi",
+    "startCommand": "python teamtaskmanager_proj/manage.py collectstatic --noinput && python teamtaskmanager_proj/manage.py migrate && gunicorn --bind 0.0.0.0:$PORT --pythonpath teamtaskmanager_proj teamtaskmanager_proj.wsgi",
     "restartPolicyType": "ON_FAILURE",
     "restartPolicyMaxRetries": 10
   }
