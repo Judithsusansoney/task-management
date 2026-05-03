@@ -1,0 +1,209 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TaskFlow - Dashboard</title>
+    <link rel="stylesheet" href="{% static 'myapp/styles.css' %}">
+</head>
+<body>
+
+    <!-- Sidebar -->
+    <nav class="sidebar">
+        <div class="logo">TaskFlow</div>
+        <ul class="nav-links">
+            <li class="nav-item active" data-target="dashboard-section">Dashboard</li>
+            <li class="nav-item" data-target="projects-section">Projects</li>
+            <li class="nav-item" data-target="tasks-section">Tasks</li>
+        </ul>
+        <div class="logout-btn" onclick="logout()">Logout</div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <header class="header">
+            <h1 id="page-title">Overview</h1>
+            <div class="user-profile">
+                <div class="user-info">
+                    <div class="user-name" id="display-username">admin</div>
+                    <div class="user-role" id="display-role">Admin</div>
+                </div>
+                <div class="avatar"></div>
+            </div>
+        </header>
+
+        <!-- Dashboard Section -->
+        <section id="dashboard-section" class="content-section active">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-title">Total Tasks</div>
+                    <div class="stat-value val-total" id="stat-total">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-title">In Progress</div>
+                    <div class="stat-value val-progress" id="stat-progress">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-title">Completed</div>
+                    <div class="stat-value val-completed" id="stat-completed">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-title">Overdue</div>
+                    <div class="stat-value val-overdue" id="stat-overdue">0</div>
+                </div>
+            </div>
+
+            <div class="section-header">
+                <h2 class="section-title">Recent Tasks</h2>
+                <button class="btn-primary admin-only" onclick="openCreateModal()" style="display: none;">+ New Task</button>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Task Name</th>
+                        <th>Project</th>
+                        <th>Assignee</th>
+                        <th>Status</th>
+                        <th>Progress</th>
+                        <th>Due Date</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="tasks-tbody">
+                    <!-- Tasks will be loaded here -->
+                </tbody>
+            </table>
+        </section>
+
+        <!-- Projects Section -->
+        <section id="projects-section" class="content-section">
+            <div class="section-header">
+                <h2 class="section-title">Projects</h2>
+                <button class="btn-primary admin-only" onclick="openModal('projectModal')" style="display: none;">+ New Project</button>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Project Name</th>
+                        <th>Description</th>
+                        <th>Created By</th>
+                    </tr>
+                </thead>
+                <tbody id="projects-tbody"></tbody>
+            </table>
+        </section>
+
+        <!-- Tasks Section (Full List) -->
+        <section id="tasks-section" class="content-section">
+            <div class="section-header">
+                <h2 class="section-title">All Tasks</h2>
+            </div>
+            <p style="color: var(--text-muted)">See Dashboard for current tasks.</p>
+        </section>
+
+    </main>
+
+    <!-- Create Task Modal -->
+    <div class="modal" id="taskModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Create New Task</h3>
+                <span class="close-btn">&times;</span>
+            </div>
+            <form onsubmit="submitTask(event)">
+                <div class="form-group">
+                    <label>Title</label>
+                    <input type="text" name="title" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label>Description</label>
+                    <input type="text" name="description" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label>Due Date</label>
+                    <input type="date" name="due_date" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label>Status</label>
+                    <select name="status" class="form-control">
+                        <option value="PENDING">Pending</option>
+                        <option value="IN_PROGRESS">In Progress</option>
+                        <option value="COMPLETED">Completed</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Assignee</label>
+                    <select name="assignee" id="assignee-select" class="form-control">
+                        <!-- Populated by JS -->
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Project</label>
+                    <select name="project" id="project-select" class="form-control" required>
+                        <!-- Populated by JS -->
+                    </select>
+                </div>
+                <button type="submit" class="btn-primary btn-block">Create Task</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Create Project Modal -->
+    <div class="modal" id="projectModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Create New Project</h3>
+                <span class="close-btn" onclick="closeModals()">&times;</span>
+            </div>
+            <form onsubmit="submitProject(event)">
+                <div class="form-group">
+                    <label>Project Name</label>
+                    <input type="text" name="name" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label>Description</label>
+                    <input type="text" name="description" class="form-control">
+                </div>
+                <button type="submit" class="btn-primary btn-block">Create Project</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Update Task Modal -->
+    <div class="modal" id="updateTaskModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Update Task Progress</h3>
+                <span class="close-btn" onclick="closeModals()">&times;</span>
+            </div>
+            <form id="updateTaskForm" onsubmit="submitUpdateTask(event)">
+                <input type="hidden" id="update-task-id" name="id">
+                
+                <div class="form-group admin-only" id="update-assignee-group" style="display: none;">
+                    <label>Assignee</label>
+                    <select name="assignee" id="update-assignee" class="form-control">
+                        <!-- Populated by JS -->
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label>Status</label>
+                    <select name="status" id="update-status" class="form-control">
+                        <option value="PENDING">Pending</option>
+                        <option value="IN_PROGRESS">In Progress</option>
+                        <option value="COMPLETED">Completed</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Progress: <span id="progress-display">0</span>%</label>
+                    <input type="range" name="progress" id="update-progress" class="form-control" min="0" max="100" value="0" style="padding: 0; cursor: pointer;" oninput="document.getElementById('progress-display').textContent = this.value" required>
+                </div>
+                <button type="submit" class="btn-primary btn-block">Update Task</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="{% static 'myapp/app.js' %}"></script>
+</body>
+</html>

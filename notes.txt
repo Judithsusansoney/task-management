@@ -1,0 +1,43 @@
+Team Task Manager - Architecture and Process Flow
+
+1. Introduction
+This project is a REST API built using Django and Django REST Framework (DRF) to manage teams, projects, and tasks. It incorporates an authentication system with Role-Based Access Control (RBAC). The entire application is powered by a default SQLite database (`db.sqlite3`), making it lightweight and easy to deploy for development.
+
+2. Database Models
+The data layer consists of four interconnected models:
+- **CustomUser**: Extends the default Django `AbstractUser` to introduce a custom `role` field. Users are either 'ADMIN' or 'MEMBER'.
+- **Project**: Represents a specific work initiative. It contains a `name` and `description`, and is tied to the CustomUser who created it (`created_by`).
+- **Team**: Represents a group of users working on a specific Project. It has a `name`, a foreign key linking it to a `Project`, and a many-to-many relationship with `CustomUser` (`members`).
+- **Task**: Represents an individual piece of work inside a Project. It contains fields for `title`, `description`, a foreign key to the associated `Project`, a foreign key to the `assignee` (CustomUser), `status` (PENDING, IN_PROGRESS, COMPLETED), and a `due_date`.
+
+3. Authentication & Role-Based Access Control
+- **Authentication**: We use DRF Token Authentication. Users obtain a token by signing up or logging in. This token must be passed in the HTTP Authorization header (`Token <token_key>`) for all protected API calls.
+- **Roles**: 
+  - `ADMIN`: Can perform CRUD operations on Projects and Teams, as well as view and manage all Tasks.
+  - `MEMBER`: Can generally only read Projects/Teams they are a part of, but they can view/update Tasks assigned to them. 
+  *(Note: A custom permission `IsAdminUserOrReadOnly` enforces that `POST`, `PUT`, `PATCH`, and `DELETE` requests on Projects and Teams are strictly restricted to Admins).*
+
+4. View Logic & Endpoints
+The logic is handled via ModelViewSets to automatically provide standard RESTful endpoints (GET, POST, PUT, PATCH, DELETE).
+
+- **Auth Endpoints:**
+  - `POST /api/signup/`: Register a new user and return an auth token.
+  - `POST /api/login/`: Authenticate an existing user and return an auth token.
+
+- **Resource Endpoints:**
+  - `GET /api/projects/`: List all projects.
+  - `POST /api/projects/`: Create a new project (Admins only).
+  - `GET /api/teams/`: List all teams.
+  - `POST /api/teams/`: Create a new team (Admins only).
+  - `GET /api/tasks/`: List tasks.
+  - `POST /api/tasks/`: Create a new task.
+
+- **Dashboard Endpoint:**
+  - `GET /api/dashboard/`: A custom `APIView` endpoint that calculates system-wide or user-specific metrics. It returns JSON containing `total_tasks`, `pending_tasks`, `in_progress_tasks`, `completed_tasks`, and `overdue_tasks` (calculated by comparing the task `due_date` against the current date). Members only see statistics based on the tasks assigned to them, while Admins see a global view.
+
+5. Process Flow
+  1. A user sends a POST request to `/api/signup/` with a username, password, and optionally a role. The system creates the user and issues a token.
+  2. The user uses the token in the `Authorization: Token <token>` header to make requests to `/api/projects/` to create a project (if they are an Admin).
+  3. The Admin can create a Team via `/api/teams/`, linking it to the project and assigning members.
+  4. Any authenticated user can interact with `/api/tasks/` to assign tasks within projects, and update their statuses to track progress.
+  5. The `/api/dashboard/` endpoint provides a real-time summary view of task statuses and pending deadlines to help users and admins manage their workload efficiently.

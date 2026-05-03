@@ -1,0 +1,74 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TaskFlow - Login</title>
+    <link rel="stylesheet" href="{% static 'myapp/styles.css' %}">
+</head>
+<body>
+
+    <div class="auth-container">
+        <!-- Login Form -->
+        <div class="auth-box" id="login-box">
+            <h2 class="auth-title">Welcome to TaskFlow</h2>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label>Username</label>
+                    <input type="text" name="username" class="form-control" required autocomplete="username">
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" name="password" class="form-control" required autocomplete="current-password">
+                </div>
+                <button type="submit" class="btn-primary btn-block">Login</button>
+            </form>
+            <div class="switch-auth">
+                Don't have an account? <a onclick="toggleAuth()">Sign up</a>
+            </div>
+        </div>
+
+        <!-- Signup Form -->
+        <div class="auth-box" id="signup-box" style="display: none;">
+            <h2 class="auth-title">Create an Account</h2>
+            <form id="signupForm">
+                <div class="form-group">
+                    <label>Username</label>
+                    <input type="text" name="username" class="form-control" required autocomplete="username">
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" name="password" class="form-control" required autocomplete="new-password">
+                </div>
+                <div class="form-group">
+                    <label>Role</label>
+                    <select name="role" class="form-control">
+                        <option value="MEMBER">Member</option>
+                        <option value="ADMIN">Admin</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn-primary btn-block">Sign Up</button>
+            </form>
+            <div class="switch-auth">
+                Already have an account? <a onclick="toggleAuth()">Login</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleAuth() {
+            const loginBox = document.getElementById('login-box');
+            const signupBox = document.getElementById('signup-box');
+            if (loginBox.style.display === 'none') {
+                loginBox.style.display = 'block';
+                signupBox.style.display = 'none';
+            } else {
+                loginBox.style.display = 'none';
+                signupBox.style.display = 'block';
+            }
+        }
+    </script>
+    <script src="{% static 'myapp/app.js' %}"></script>
+</body>
+</html>
